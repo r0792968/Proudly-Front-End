@@ -15,7 +15,7 @@
           Annual Revenue
         </th>
       </tr>
-      <tr v-for="industry in this.ChosenIndustries">
+      <tr>
         <td>
           {{ChosenIndustries}}
         </td>
@@ -126,8 +126,8 @@ export default {
       selectedAnnualRevenueMax: null,
       baselink: "https://www.linkedin.com/sales/search/company?query=(filters:List(",
       indlink: "(type:INDUSTRY,values:List(",
-      headlink: "",
-      geolink: "",
+      headlink: "(type:COMPANY_HEADCOUNT,values:List(",
+      geolink: "(type:REGION,values:List(",
       annuallink: ""
 
     };
@@ -148,7 +148,7 @@ export default {
     addIndustry(){
       const templink = "(id:"+ this.selectedIndustryID+",selectionType:INCLUDED),"
       this.indlink += templink
-      this.ChosenIndustries += this.selectedIndustryID
+      this.ChosenIndustries += this.selectedIndustryID + " "
     },
     addHeadcount(){
       fetch(process.env.VUE_APP_ROOT_API+"company/filter/headcount",{
@@ -157,10 +157,10 @@ export default {
           }})
           .then(response => response.json())
           .then(response => {
-          const templink = "(type:COMPANY_HEADCOUNT,values:List((id:"+response.ID+",selectionType:INCLUDED),"
+          const templink = "(id:"+response.ID+",selectionType:INCLUDED),"
           this.headlink += templink
           })
-      this.ChosenHeadCounts += this.selectedHeadcount
+      this.ChosenHeadCounts += this.selectedHeadcount + " "
     },
     addHQ(){
       fetch(process.env.VUE_APP_ROOT_API+"company/filter/headquarters",{
@@ -169,10 +169,10 @@ export default {
           }})
         .then(response => response.json())
         .then(response => {
-          const templink = "(type:REGION,values:List((id:"+response.ID+",selectionType:INCLUDED),"
+          const templink = "(id:"+response.ID+",selectionType:INCLUDED),"
           this.geolink += templink
         })
-      this.ChosenHQs += this.selectedHQ
+      this.ChosenHQs += this.selectedHQ + " "
     },
     addRevenue(){
       const templink = "(type:ANNUAL_REVENUE,rangeValue:(min:"+this.selectedAnnualRevenueMin+",max:"+this.selectedAnnualRevenueMax+"),selectedSubFilter:"+this.selectedAnnualRevenueCURRENCY+")))"
@@ -190,14 +190,14 @@ export default {
           }})
           .then(response => response.json())
           .then(response => {
-            sessionStorage.setItem("search_id", response.primary_key)
+            sessionStorage.setItem("search_id",response.company_search)
             console.log(response)})
     },
     linkConstructor() {
       if (this.indlink != "(type:INDUSTRY,values:List(") {
         this.baselink += (this.indlink + "))" )
       }
-      if (this.headlink != "(type:INDUSTRY,values:List(") {
+      if (this.headlink != "(type:HEADCOUNT,values:List(") {
         this.baselink += (","+this.headlink+"))")
       }
       if (this.geolink != "(type:REGION,values:List(") {
@@ -206,7 +206,6 @@ export default {
       if (this.annuallink != "") {
         this.baselink += (","+ this.annuallink)
       }
-      console.log(this.baselink+"))")
       sessionStorage.setItem('link',this.baselink)
       this.addSearchToDB()
       this.redirectToResults()

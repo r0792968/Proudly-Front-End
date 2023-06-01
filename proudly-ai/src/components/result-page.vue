@@ -4,6 +4,13 @@
     <button @click="launchCall">LAUNCH</button>
     <button @click="fetchCall">FETCH to DB</button>
     <button @click="companyLeads">GET out of DB</button>
+    <ol>
+      <li>
+        <div class="text">
+
+        </div>
+      </li>
+    </ol>
   </div>
 </template>
 
@@ -12,6 +19,16 @@ export default {
   name: 'search-page',
   props: {
     msg: String
+  },
+  mounted(){
+    fetch(process.env.VUE_APP_ROOT_API + 'company/leads', {
+            method: "GET",
+            headers: {
+              'search_id': sessionStorage.getItem("search_id")
+            }
+          })
+            .then(response => response.json())
+            .then(response => console.log(response))
   },
   data() {
     return {
